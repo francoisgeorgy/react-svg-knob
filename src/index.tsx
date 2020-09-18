@@ -1,5 +1,5 @@
 // import React, { FC, HTMLAttributes, ReactChild } from 'react';
-import React, {FC, HTMLAttributes, MouseEvent, useEffect, useRef, useState} from 'react';
+import React, {FC, HTMLAttributes, MouseEvent, useEffect, useRef, useState} from "react";
 import {Track} from "./Track";
 import {TrackBackground} from "./TrackBackground";
 import {Background} from "./Background";
@@ -10,12 +10,8 @@ import {VIEWBOX_HEIGHT, VIEWBOX_WIDTH} from "./config";
 import {CCW, config} from "./config";
 
 export interface Props extends HTMLAttributes<HTMLDivElement> {
-    onKnobChange: (n: number) => void,
-    options?: string
-}
-
-function dummy(e: any) {
-    console.log("dummy", e);
+    onKnobChange: (n: number) => void;
+    options?: string;
 }
 
 // Please do not use types off of a default export module or else Storybook Docs will suffer.
