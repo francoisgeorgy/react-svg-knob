@@ -6,7 +6,7 @@ import {Background} from "./Background";
 import {Cursor} from "./Cursor";
 import {Text} from "./Text";
 import {polarToKnobAngle} from "./maths";
-import {VIEWBOX_HEIGHT, VIEWBOX_WIDTH} from "./config";
+import {TRACE, VIEWBOX_HEIGHT, VIEWBOX_WIDTH} from "./config";
 import {CCW, config} from "./config";
 
 export interface Props extends HTMLAttributes<HTMLDivElement> {
@@ -18,16 +18,16 @@ export interface Props extends HTMLAttributes<HTMLDivElement> {
 // see: https://github.com/storybookjs/storybook/issues/9556
 export const Knob: FC<Props> = ({onKnobChange, options}) => {
 
-    // console.log("Knob: options", options);
+    // if (TRACE) console.log("Knob: options", options);
 
     const svgElementRef = useRef(null);
     const [width, setWidth] = useState(0);
     const [targetRect, setTargetRect] = useState(null);
     const [dragging, setDragging] = useState(false);
-    const [angle, setAngle] = useState(0.0);  // current knob's value [value_min..value_max]
+    const [angle, setAngle] = useState(config.angle_min);  // current knob's value [value_min..value_max]
 
     useEffect(() => {
-        console.log("Knob.useEffect");
+        if (TRACE) console.log("Knob.useEffect");
         if (svgElementRef) { // @ts-ignore
             setWidth(svgElementRef.current.getBoundingClientRect().width);
             // @ts-ignore
@@ -46,40 +46,30 @@ export const Knob: FC<Props> = ({onKnobChange, options}) => {
             */
         }
         // @ts-ignore
-        console.log("svgElementRef getBoundingClientRect", svgElementRef ? svgElementRef.current.getBoundingClientRect(): null);
+        if (TRACE) console.log("svgElementRef getBoundingClientRect", svgElementRef ? svgElementRef.current.getBoundingClientRect(): null);
     }, []); //empty dependency array so it only runs once at render
 
-    const mouseDownHandler = (e: MouseEvent) => {
-        console.log("mouseDown", e, e.nativeEvent);
-        setDragging(true);
+    function updateAngle(a: number) {
+        // if (trace) console.log("knob value has changed");
+        // let value = getValue();     // TODO: cache the value
+        // let event = new CustomEvent("change", {"detail": value});
+        // //svg_element.dispatchEvent(event);
+        // elem.dispatchEvent(event);
+        // if (config.onchange) {
+        //     config.onchange(value);
+        // }
 
-        //TODO: https://www.pluralsight.com/guides/event-listeners-in-react-components
-        console.log("window.addEventListener");
-        // @ts-ignore
-        document.addEventListener('mousemove', mouseMoveHandler);
-        // @ts-ignore
-        document.addEventListener('mouseup', mouseUpHandler);
-        // window.addEventListener('mouseMove', (event) => {
-        //     console.log("Window.mouseMove", event);
-        // });
-    };
+        if (TRACE) console.log("updateAngle", Math.abs(a - angle));
 
-    const mouseUpHandler = (e: Event) => {
-        console.log("mouseUp", e);
-        setDragging(false);
+        // if (Math.abs(a - angle) > 2) {  //TODO: define Epsilon
+            setAngle(a);
+            // if (TRACE) console.log("call Knob's callback");
+            onKnobChange(a)
+        // }
+    }
 
-        console.log("window.removeEventListener");
-        // @ts-ignore
-        document.removeEventListener('mousemove', mouseMoveHandler);
-        document.removeEventListener('mouseup', mouseUpHandler);
-        // window.removeEventListener('mouseMove', (event) => {
-        //     console.log("Window.mouseMove", event);
-        // });
+    const mouseUpdate= (e: Event) => {
 
-    };
-
-    const mouseMoveHandler = (e: Event) => {
-        console.log("mouseMove", e);
         /*
             // MouseEvent.clientX (standard property: YES)
             // The clientX read-only property of the MouseEvent interface provides
@@ -106,14 +96,14 @@ export const Knob: FC<Props> = ({onKnobChange, options}) => {
             let angle_rad = Math.atan2(dy, dx);
             if (angle_rad < 0) angle_rad = 2.0*Math.PI + angle_rad;
 
-            if (trace) console.log(`mouseUpdate: position in svg = ${dxPixels}, ${dyPixels} pixels; ${dx.toFixed(3)}, ${dy.toFixed(3)} rel.; angle ${angle_rad.toFixed(3)} rad`);
+            if (trace) if (TRACE) console.log(`mouseUpdate: position in svg = ${dxPixels}, ${dyPixels} pixels; ${dx.toFixed(3)}, ${dy.toFixed(3)} rel.; angle ${angle_rad.toFixed(3)} rad`);
 
             setAngle(polarToKnobAngle(angle_rad * 180.0 / Math.PI), true);
         */
         // let dxPixels = e.clientX - targetRect.left;
         // let dyPixels = e.clientY - targetRect.top;
         // @ts-ignore
-        console.log("mouseMove", "targetRect.left, .top", targetRect.left, targetRect.top);
+        if (TRACE) console.log("mouseMove", "targetRect.left, .top", targetRect.left, targetRect.top);
 
         if (targetRect !== null) {
 
@@ -140,30 +130,61 @@ export const Knob: FC<Props> = ({onKnobChange, options}) => {
             let angle_rad = Math.atan2(dy, dx);
             if (angle_rad < 0) angle_rad = 2.0*Math.PI + angle_rad;
 
-            // if (trace) console.log(`mouseUpdate: position in svg = ${dxPixels}, ${dyPixels} pixels; ${dx.toFixed(3)}, ${dy.toFixed(3)} rel.; angle ${angle_rad.toFixed(3)} rad`);
+            // if (trace) if (TRACE) console.log(`mouseUpdate: position in svg = ${dxPixels}, ${dyPixels} pixels; ${dx.toFixed(3)}, ${dy.toFixed(3)} rel.; angle ${angle_rad.toFixed(3)} rad`);
 
             const a = polarToKnobAngle(angle_rad * 180.0 / Math.PI);
 
-            setAngle(a);
-            console.log("call Knob's callback");
-            onKnobChange(a)
-
-            console.log("mouseMove", "dx, dy, angle", dxPixels, dyPixels, a);
+            updateAngle(a);
+            if (TRACE) console.log("mouseMove", "dx, dy, angle", dxPixels, dyPixels, a);
         }
+
+    }
+
+    const mouseDownHandler = (e: MouseEvent) => {
+
+        if (TRACE) console.log("mouseDown", e, e.nativeEvent);
+
+        e.preventDefault();
+
+        setDragging(true);
+
+        if (TRACE) console.log("window.addEventListener");
+        // @ts-ignore
+        document.addEventListener('mousemove', mouseMoveHandler);
+        // @ts-ignore
+        document.addEventListener('mouseup', mouseUpHandler);
+
+        mouseUpdate(e.nativeEvent);
+    };
+
+    const mouseUpHandler = (e: Event) => {
+        if (TRACE) console.log("mouseUp", e);
+        setDragging(false);
+
+        if (TRACE) console.log("window.removeEventListener");
+        // @ts-ignore
+        document.removeEventListener('mousemove', mouseMoveHandler);
+        document.removeEventListener('mouseup', mouseUpHandler);
+    };
+
+    const mouseMoveHandler = (e: Event) => {
+        // if (TRACE) console.log("mouseMove", e);
+        e.preventDefault();
+        mouseUpdate(e);
     };
 
 /*
     const handleKeyDown = (event:any) => {
-        console.log('A key was pressed', event.keyCode);
+        if (TRACE) console.log('A key was pressed', event.keyCode);
     };
 
     React.useEffect(() => {
-        console.log("add keyDown");
+        if (TRACE) console.log("add keyDown");
         window.addEventListener('keydown', handleKeyDown);
         // window.addEventListener('mousemove', dummy);
         // cleanup this component
         return () => {
-            console.log("remove keyDown");
+            if (TRACE) console.log("remove keyDown");
             window.removeEventListener('keydown', handleKeyDown);
         };
     }, []);

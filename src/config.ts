@@ -1,4 +1,6 @@
 
+export const TRACE = true;
+
 export const VIEWBOX_WIDTH = 100;
 export const VIEWBOX_HEIGHT = 100;
 export const HALF_WIDTH = 50;      // viewBox/2

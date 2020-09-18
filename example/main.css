@@ -1,0 +1,13 @@
+div {
+    border: 1px solid #ccc;
+    padding: 10px;
+}
+
+.f {
+    display: flex;
+}
+
+.g {
+    display: grid;
+    grid-template-columns: auto auto auto;
+}
