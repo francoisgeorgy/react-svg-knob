@@ -4,22 +4,25 @@ import {Track} from "./Track";
 import {TrackBackground} from "./TrackBackground";
 import {Background} from "./Background";
 import {Cursor} from "./Cursor";
+import {Text} from "./Text";
 import {polarToKnobAngle} from "./maths";
-
-const VIEWBOX_WIDTH = 100;
-const VIEWBOX_HEIGHT = 100;
-// const HALF_WIDTH = 50;      // viewBox/2
-// const HALF_HEIGHT = 50;     // viewBox/2
+import {VIEWBOX_HEIGHT, VIEWBOX_WIDTH} from "./config";
+import {CCW, config} from "./config";
 
 export interface Props extends HTMLAttributes<HTMLDivElement> {
-    options?: string;
+    onKnobChange: (n: number) => void,
+    options?: string
+}
+
+function dummy(e: any) {
+    console.log("dummy", e);
 }
 
 // Please do not use types off of a default export module or else Storybook Docs will suffer.
 // see: https://github.com/storybookjs/storybook/issues/9556
-export const Knob: FC<Props> = ({options}) => {
+export const Knob: FC<Props> = ({onKnobChange, options}) => {
 
-    console.log("Knob: options", options);
+    // console.log("Knob: options", options);
 
     const svgElementRef = useRef(null);
     const [width, setWidth] = useState(0);
@@ -55,20 +58,32 @@ export const Knob: FC<Props> = ({options}) => {
         setDragging(true);
 
         //TODO: https://www.pluralsight.com/guides/event-listeners-in-react-components
-        console.log("addEventListener to window");
+        console.log("window.addEventListener");
+        // @ts-ignore
+        document.addEventListener('mousemove', mouseMoveHandler);
+        // @ts-ignore
+        document.addEventListener('mouseup', mouseUpHandler);
         // window.addEventListener('mouseMove', (event) => {
+        //     console.log("Window.mouseMove", event);
+        // });
+    };
+
+    const mouseUpHandler = (e: Event) => {
+        console.log("mouseUp", e);
+        setDragging(false);
+
+        console.log("window.removeEventListener");
+        // @ts-ignore
+        document.removeEventListener('mousemove', mouseMoveHandler);
+        document.removeEventListener('mouseup', mouseUpHandler);
+        // window.removeEventListener('mouseMove', (event) => {
         //     console.log("Window.mouseMove", event);
         // });
 
     };
 
-    const mouseUpHandler = (e: MouseEvent) => {
-        console.log("mouseUp", e, e.nativeEvent);
-        setDragging(false);
-    };
-
-    const mouseMoveHandler = (e: MouseEvent) => {
-        console.log("mouseMove", e, e.nativeEvent);
+    const mouseMoveHandler = (e: Event) => {
+        console.log("mouseMove", e);
         /*
             // MouseEvent.clientX (standard property: YES)
             // The clientX read-only property of the MouseEvent interface provides
@@ -123,7 +138,7 @@ export const Knob: FC<Props> = ({options}) => {
             // @ts-ignore
             let dy = -(dyPixels - arcCenterYPixels) / (targetRect.width / 2);  // targetRect.width car on a 20px de plus en hauteur pour le label
 
-            // if (config.rotation === CCW) dx = - dx;
+            if (config.rotation === CCW) dx = - dx;
 
             // convert to polar coordinates
             let angle_rad = Math.atan2(dy, dx);
@@ -131,23 +146,41 @@ export const Knob: FC<Props> = ({options}) => {
 
             // if (trace) console.log(`mouseUpdate: position in svg = ${dxPixels}, ${dyPixels} pixels; ${dx.toFixed(3)}, ${dy.toFixed(3)} rel.; angle ${angle_rad.toFixed(3)} rad`);
 
-            setAngle(polarToKnobAngle(angle_rad * 180.0 / Math.PI));
-            //TODO: call Knob's callback
+            const a = polarToKnobAngle(angle_rad * 180.0 / Math.PI);
 
+            setAngle(a);
+            console.log("call Knob's callback");
+            onKnobChange(a)
 
-            console.log("mouseMove", "dx, dy, angle", dxPixels, dyPixels, polarToKnobAngle(angle_rad * 180.0 / Math.PI));
+            console.log("mouseMove", "dx, dy, angle", dxPixels, dyPixels, a);
         }
     };
 
+/*
+    const handleKeyDown = (event:any) => {
+        console.log('A key was pressed', event.keyCode);
+    };
+
+    React.useEffect(() => {
+        console.log("add keyDown");
+        window.addEventListener('keydown', handleKeyDown);
+        // window.addEventListener('mousemove', dummy);
+        // cleanup this component
+        return () => {
+            console.log("remove keyDown");
+            window.removeEventListener('keydown', handleKeyDown);
+        };
+    }, []);
+*/
+
     return (
         <svg ref={svgElementRef} viewBox={`0 0 ${VIEWBOX_WIDTH} ${VIEWBOX_HEIGHT}`} className="react-svg-knob"
-            onMouseDown={mouseDownHandler} onMouseMove={mouseMoveHandler}>
+            onMouseDown={mouseDownHandler}>
             <Background/>
             <TrackBackground/>
-            <Track/>
-            <Cursor/>
-            <text x="50" y="58" textAnchor="middle" cursor="default" fontFamily="sans-serif" fontSize="25"
-                  fontWeight="bold" fill="#424242" className="knob-value">{angle.toFixed(0)}</text>
+            <Track angle={angle}/>
+            <Cursor angle={angle}/>
+            <Text angle={angle}/>
         </svg>
     );
 };

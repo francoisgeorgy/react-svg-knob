@@ -1,13 +1,27 @@
 // import React, { FC, HTMLAttributes, ReactChild } from 'react';
-import React, { FC } from 'react';
+import React, {FC, HTMLAttributes} from 'react';
+import {config} from "./config";
+import {knobToPolarAngle} from "./maths";
+import {getViewboxCoord} from "./svg";
 
-// export interface Props extends HTMLAttributes<HTMLDivElement> {
-// children?: ReactChild;
-// }
 
-// Please do not use types off of a default export module or else Storybook Docs will suffer.
-// see: https://github.com/storybookjs/storybook/issues/9556
-export const Cursor: FC = () => {
-    return <path d="M 42.284613710256096,33.73737984210319 L 37.9982879937317,24.702590865493846" stroke="#42A5F5"
-                 strokeWidth="4" fill="transparent" strokeLinecap="butt" className="knob-cursor"></path>;
+/**
+ *
+ * @returns {string}
+ */
+function getTrackCursor(angle: number): string {
+    let a = knobToPolarAngle(angle);
+    let from = getViewboxCoord(a, config.cursor_radius);
+    let to = getViewboxCoord(a, config.cursor_radius + config.cursor_length);
+    return `M ${from.x},${from.y} L ${to.x},${to.y}`;
+}
+
+
+export interface Props extends HTMLAttributes<HTMLDivElement> {
+    angle: number;
+}
+
+export const Cursor: FC<Props> = ({angle}) => {
+    return <path d={getTrackCursor(angle)}
+                 stroke="#42A5F5" strokeWidth="4" fill="transparent" strokeLinecap="butt" className="knob-cursor"></path>;
 };
