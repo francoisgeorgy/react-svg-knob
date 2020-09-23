@@ -21,35 +21,85 @@ export const Knob: FC<Props> = ({onKnobChange, options}) => {
     // if (TRACE) console.log("Knob: options", options);
 
     const svgElementRef = useRef(null);
-    const [width, setWidth] = useState(0);
-    const [targetRect, setTargetRect] = useState(null);
-    const [dragging, setDragging] = useState(false);
+    // const [width, setWidth] = useState(0);
+    // const [targetRect, setTargetRect] = useState(null);
+    // const [dragging, setDragging] = useState(false);
+
+    // let bounds: any = null;
+    let targetRect: any = null;
+    // let width: number = 0;
+
+
+    // The knob view is only dependent of the angle:
     const [angle, setAngle] = useState(config.angle_min);  // current knob's value [value_min..value_max]
 
     useEffect(() => {
-        if (TRACE) console.log("Knob.useEffect");
-        if (svgElementRef) { // @ts-ignore
-            setWidth(svgElementRef.current.getBoundingClientRect().width);
-            // @ts-ignore
-            setTargetRect(svgElementRef.current.getBoundingClientRect());
-            /*
-            svgElementRef getBoundingClientRect
-                DOMRect: {x: 8, y: 26, width: 100, height: 100, top: 26, …}
-                bottom: 126
-                height: 100
-                left: 8
-                right: 108
-                top: 26
-                width: 100
-                x: 8
-                y: 26
-            */
-        }
+        // if (TRACE) console.log("Knob.useEffect");
+
         // @ts-ignore
-        if (TRACE) console.log("svgElementRef getBoundingClientRect", svgElementRef ? svgElementRef.current.getBoundingClientRect(): null);
+        // if (TRACE) console.log("svgElementRef getBoundingClientRect", svgElementRef ? svgElementRef.current.getBoundingClientRect(): null);
+
+        updateBounds();
+
+        // if (svgElementRef) {
+        //
+        //     // @ts-ignore
+        //     setWidth(svgElementRef.current.getBoundingClientRect().width);
+        //
+        //     // @ts-ignore
+        //     setTargetRect(svgElementRef.current.getBoundingClientRect());
+        //
+        //
+        //     /*
+        //     svgElementRef getBoundingClientRect
+        //         DOMRect: {x: 8, y: 26, width: 100, height: 100, top: 26, …}
+        //         bottom: 126
+        //         height: 100
+        //         left: 8
+        //         right: 108
+        //         top: 26
+        //         width: 100
+        //         x: 8
+        //         y: 26
+        //     */
+        // }
     }, []); //empty dependency array so it only runs once at render
 
-    function updateAngle(a: number) {
+    function updateBounds() {
+        if (svgElementRef) {
+            // @ts-ignore
+            targetRect = svgElementRef.current.getBoundingClientRect();
+            if (TRACE) console.log("updateBounds", targetRect);
+            // @ts-ignore
+            // setWidth(bounds.width);
+            // @ts-ignore
+            // setTargetRect(bounds);
+        }
+    }
+
+    /**
+     *
+     * @param degrees: angle in degrees
+     */
+    function updateAngle(degrees: number) {
+
+        let new_angle = Math.min(Math.max(degrees, config.angle_min), config.angle_max);
+
+        if (TRACE) console.log("updateAngle", degrees, new_angle);
+
+        setAngle(degrees);
+
+        // let prev = angle;
+        // let notify = fire_event && (new_angle !== angle);
+        let notify = (new_angle !== angle); //TODO: notify flag
+        if (notify) {
+            // fire the event if the change of angle affect the value:
+            onKnobChange(new_angle);
+            //TODO:
+            // if (getValue(prev) !== getValue()) {
+            //     notifyChange();
+            // }
+        }
         // if (trace) console.log("knob value has changed");
         // let value = getValue();     // TODO: cache the value
         // let event = new CustomEvent("change", {"detail": value});
@@ -59,16 +109,15 @@ export const Knob: FC<Props> = ({onKnobChange, options}) => {
         //     config.onchange(value);
         // }
 
-        if (TRACE) console.log("updateAngle", Math.abs(a - angle));
 
         // if (Math.abs(a - angle) > 2) {  //TODO: define Epsilon
-            setAngle(a);
+        //     setAngle(degrees);
             // if (TRACE) console.log("call Knob's callback");
-            onKnobChange(a)
+            // onKnobChange(degrees)
         // }
     }
 
-    const mouseUpdate= (e: Event) => {
+    const mouseUpdate = (e: Event) => {
 
         /*
             // MouseEvent.clientX (standard property: YES)
@@ -103,14 +152,16 @@ export const Knob: FC<Props> = ({onKnobChange, options}) => {
         // let dxPixels = e.clientX - targetRect.left;
         // let dyPixels = e.clientY - targetRect.top;
         // @ts-ignore
-        if (TRACE) console.log("mouseMove", "targetRect.left, .top", targetRect.left, targetRect.top);
+        if (TRACE) console.log("mouseUpdate", "targetRect: left, top, width, e.clientX, e.clientY", e, targetRect.left, targetRect.top, targetRect.width, e.clientX, e.clientY);
 
         if (targetRect !== null) {
 
+            // let dxPixels = targetRect ? e.clientX - targetRect.left : 0;
             // @ts-ignore
-            let dxPixels = targetRect ? e.clientX - targetRect.left : 0;
+            let dxPixels = e.clientX - targetRect.left;
+            // let dyPixels = targetRect ? e.clientY - targetRect.top : 0;
             // @ts-ignore
-            let dyPixels = targetRect ? e.clientY - targetRect.top : 0;
+            let dyPixels = e.clientY - targetRect.top;
 
             // By design, the arc center is at equal distance from top and left.
             // @ts-ignore
@@ -134,21 +185,26 @@ export const Knob: FC<Props> = ({onKnobChange, options}) => {
 
             const a = polarToKnobAngle(angle_rad * 180.0 / Math.PI);
 
+            if (TRACE) console.log("mouseUpdate", "arcCenterXPixels, arcCenterYPixels, dxPixels, dyPixels, dx, dy, angle", arcCenterXPixels, arcCenterYPixels, dxPixels, dyPixels, dx, dy, a);
+
             updateAngle(a);
-            if (TRACE) console.log("mouseMove", "dx, dy, angle", dxPixels, dyPixels, a);
         }
 
     }
 
     const mouseDownHandler = (e: MouseEvent) => {
 
-        if (TRACE) console.log("mouseDown", e, e.nativeEvent);
+        // if (TRACE) console.log("mouseDown", e, e.nativeEvent);
 
         e.preventDefault();
 
-        setDragging(true);
+        // setDragging(true);
 
-        if (TRACE) console.log("window.addEventListener");
+        // If the knob is not the last element being rendered on the page, it's boundingRect may still be updated if other elements
+        // are added in the page. It's therefore important to always get an updated value:
+        updateBounds();
+
+        // if (TRACE) console.log("window.addEventListener");
         // @ts-ignore
         document.addEventListener('mousemove', mouseMoveHandler);
         // @ts-ignore
@@ -158,10 +214,10 @@ export const Knob: FC<Props> = ({onKnobChange, options}) => {
     };
 
     const mouseUpHandler = (e: Event) => {
-        if (TRACE) console.log("mouseUp", e);
-        setDragging(false);
+        // if (TRACE) console.log("mouseUp", e);
+        // setDragging(false);
 
-        if (TRACE) console.log("window.removeEventListener");
+        // if (TRACE) console.log("window.removeEventListener");
         // @ts-ignore
         document.removeEventListener('mousemove', mouseMoveHandler);
         document.removeEventListener('mouseup', mouseUpHandler);
