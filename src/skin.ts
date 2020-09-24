@@ -23,7 +23,7 @@ export type KnobSkinType = {
     font_size: number;
     font_weight: string;
     label: boolean;
-    linecap: string;
+    linecap: "butt" | "round" | "square" | "inherit" | undefined;
     markers: number;
     markers_length: number;
     markers_radius: number;
@@ -45,7 +45,7 @@ export const DEFAULT_SKIN: KnobSkinType = {
     bg: false,
     track: true,
     track_bg: true,
-    cursor: false,
+    cursor: true,
     text: true,
 
     // split knob:
@@ -64,9 +64,9 @@ export const DEFAULT_SKIN: KnobSkinType = {
     track_width: 8,
 
     // cursor
-    cursor_radius: 18,          // same unit as radius
-    cursor_length: 10,
-    cursor_width: 4,
+    cursor_radius: 25,          // same unit as radius
+    cursor_length: 19,
+    cursor_width: 8,
 
     // CSS class names
     linecap: "butt",                   // https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/stroke-linecap

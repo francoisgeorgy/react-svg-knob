@@ -12,6 +12,10 @@ const App = () => {
         setN(n);
     }
 
+    function simpleDisplay(v: number): string {
+        return v.toFixed(0);
+    }
+
     function customDisplay(v: number): JSX.Element {
         return <Fragment>yop<br />{v.toFixed(2)}</Fragment>;
     }
@@ -19,7 +23,7 @@ const App = () => {
     return (
         <div className="centered">
             <div style={{"width": "80vh"}}>
-                <Knob onKnobChange={onKnobChange} config={{format: customDisplay}} />
+                <Knob onKnobChange={onKnobChange} config={{format: simpleDisplay}} />
                 <div>{n}</div>
             </div>
         </div>

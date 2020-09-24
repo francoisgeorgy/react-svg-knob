@@ -31,11 +31,6 @@ export const Knob: FC<KnobProps> = ({onKnobChange, config, skin}) => {
     const [angle, setAngle] = useState(knob_config.angle_min);  // current knob's value [value_min..value_max]
 
     useEffect(() => {
-        // if (TRACE) console.log("Knob.useEffect");
-
-        // @ts-ignore
-        // if (TRACE) console.log("svgElementRef getBoundingClientRect", svgElementRef ? svgElementRef.current.getBoundingClientRect(): null);
-
         updateBounds();
     }, []); //empty dependency array so it only runs once at render
 
@@ -115,37 +110,12 @@ export const Knob: FC<KnobProps> = ({onKnobChange, config, skin}) => {
      * @param degrees: angle in degrees
      */
     function updateAngle(degrees: number) {
-
         let new_angle = Math.min(Math.max(degrees, knob_config.angle_min), knob_config.angle_max);
-
-        // if (TRACE) console.log("updateAngle", degrees, new_angle, knob_config.angle_min, knob_config.angle_max);
-
         setAngle(new_angle);
-
-        // let prev = angle;
-        // let notify = fire_event && (new_angle !== angle);
-        let notify = (new_angle !== angle); //TODO: notify flag
+        let notify = new_angle !== angle;
         if (notify) {
-            // fire the event if the change of angle affect the value:
-            // onKnobChange(new_angle);
-
-
-            console.log("updateAngle", getValue(new_angle));
-
-
             onKnobChange(getValue(new_angle));
-            //TODO:
-            // if (getValue(prev) !== getValue()) {
-            //     notifyChange();
-            // }
         }
-        // if (trace) console.log("knob value has changed");
-        // let value = getValue();     // TODO: cache the value
-        // if (Math.abs(a - angle) > 2) {  //TODO: define Epsilon
-        //     setAngle(degrees);
-            // if (TRACE) console.log("call Knob's callback");
-            // onKnobChange(degrees)
-        // }
     }
 
     const mouseUpdate = (e: Event) => {
@@ -197,7 +167,6 @@ export const Knob: FC<KnobProps> = ({onKnobChange, config, skin}) => {
             const arcCenterXPixels = targetRect.width / 2;
             //noinspection JSSuspiciousNameCombination
             const arcCenterYPixels = arcCenterXPixels;
-
 
             // @ts-ignore
             let dx = (dxPixels - arcCenterXPixels) / (targetRect.width / 2);
