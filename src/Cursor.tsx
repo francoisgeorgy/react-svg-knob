@@ -34,7 +34,7 @@ export const Cursor: FC<KnobCursorProps> = ({angle, config, skin}) => {
     }
 
     return <path d={getCursorPath()}
-                 stroke="#42A5F5" strokeWidth={skin.cursor_width} strokeLinecap={skin.linecap}
+                 strokeWidth={skin.cursor_width} strokeLinecap={skin.linecap} stroke="#42A5F5"
                  fill="transparent"
                  className="react-svg-knob-cursor"></path>;
 };

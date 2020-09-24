@@ -8,12 +8,12 @@ import {Text} from "./Text";
 import {polarToKnobAngle} from "./maths";
 import {DEFAULT_CONFIG, KnobConfigType, TRACE, VIEWBOX_HEIGHT, VIEWBOX_WIDTH} from "./knobConfig";
 import {CCW} from "./knobConfig";
-import {DEFAULT_SKIN, KnobSkinType} from "./skin";
+import {DEFAULT_SKIN, KnobSkinType, PublicKnobSkinType} from "./skin";
 
 export interface KnobProps extends HTMLAttributes<HTMLDivElement> {
     onKnobChange: (n: number) => void;
     config?: KnobConfigType;
-    skin?: KnobSkinType;
+    skin?: PublicKnobSkinType;
 }
 
 // Please do not use types off of a default export module or else Storybook Docs will suffer.

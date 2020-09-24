@@ -17,5 +17,6 @@ export interface KnobTrackBackgroundProps extends HTMLAttributes<HTMLDivElement>
 export const TrackBackground: FC<KnobTrackBackgroundProps> = ({config, skin}) => {
     return <path d="M 29.999939540051646,84.64098124473975 A 40,40 0 1,1 70.00006045994832,84.64098124473976"
                  stroke="#CFD8DC"
-                 strokeWidth="8" fill="transparent" strokeLinecap="butt" className="react-svg-knob-track-bg"></path>;
+                 strokeWidth={skin.track_bg_width}
+                 fill="transparent" strokeLinecap="butt" className="react-svg-knob-track-bg"></path>;
 };

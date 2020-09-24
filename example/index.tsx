@@ -23,7 +23,7 @@ const App = () => {
     return (
         <div className="centered">
             <div style={{"width": "80vh"}}>
-                <Knob onKnobChange={onKnobChange} config={{format: simpleDisplay}} />
+                <Knob onKnobChange={onKnobChange} config={{format: simpleDisplay}} skin={{font_size: 20, linecap: "round", cursor_radius: 21}} />
                 <div>{n}</div>
             </div>
         </div>
