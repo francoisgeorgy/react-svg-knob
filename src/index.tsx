@@ -24,14 +24,8 @@ export const Knob: FC<KnobProps> = ({onKnobChange, config, skin}) => {
     const knob_skin: KnobSkinType = Object.assign({}, DEFAULT_SKIN, skin);
 
     const svgElementRef = useRef(null);
-    // const [width, setWidth] = useState(0);
-    // const [targetRect, setTargetRect] = useState(null);
-    // const [dragging, setDragging] = useState(false);
 
-    // let bounds: any = null;
     let targetRect: any = null;
-    // let width: number = 0;
-
 
     // The knob view is only dependent of the angle:
     const [angle, setAngle] = useState(knob_config.angle_min);  // current knob's value [value_min..value_max]
@@ -43,40 +37,76 @@ export const Knob: FC<KnobProps> = ({onKnobChange, config, skin}) => {
         // if (TRACE) console.log("svgElementRef getBoundingClientRect", svgElementRef ? svgElementRef.current.getBoundingClientRect(): null);
 
         updateBounds();
-
-        // if (svgElementRef) {
-        //
-        //     // @ts-ignore
-        //     setWidth(svgElementRef.current.getBoundingClientRect().width);
-        //
-        //     // @ts-ignore
-        //     setTargetRect(svgElementRef.current.getBoundingClientRect());
-        //
-        //
-        //     /*
-        //     svgElementRef getBoundingClientRect
-        //         DOMRect: {x: 8, y: 26, width: 100, height: 100, top: 26, …}
-        //         bottom: 126
-        //         height: 100
-        //         left: 8
-        //         right: 108
-        //         top: 26
-        //         width: 100
-        //         x: 8
-        //         y: 26
-        //     */
-        // }
     }, []); //empty dependency array so it only runs once at render
+
+    /**
+     * Trick to adjust the cursor position when the range is odd.
+     */
+    function getCursorCorrection(): number {
+        let isOdd = (n: number) => Math.abs(n % 2) === 1;
+        return isOdd(Math.abs(knob_config.value_max - knob_config.value_min)) ? 0.5 : 0;
+    }
+
+    function initValue(): void {
+        //TODO
+        // set initial value and angle:
+        setValue(knob_config.initial_value ? knob_config.initial_value : knob_config.default_value);
+    }
+
+    /**
+     * Set knob's value
+     * @param v
+     */
+    function setValue(v: number): void {
+        //TODO
+        /*
+                if (v < knob_config.value_min) {
+                    value = knob_config.value_min;
+                } else if (v > knob_config.value_max) {
+                    value = knob_config.value_max;
+                } else {
+                    value = v;
+                }
+                setAngle(((v + getCursorCorrection() - knob_config.value_min) / (knob_config.value_max - knob_config.value_min)) * (knob_config.angle_max - knob_config.angle_min) + knob_config.angle_min);
+                if (trace) console.log(`setValue(${v}) angle=` + ((v - knob_config.value_min) / (knob_config.value_max - knob_config.value_min)) * (knob_config.angle_max - knob_config.angle_min) + knob_config.angle_min);
+                return true;
+        */
+    }
+    /**
+     *
+     * @param degrees [deg] in knob's coordinates
+     * @returns {*}
+     */
+    function getDisplayValue(degrees: number): string {
+        if (TRACE) console.log("getDisplayValue", knob_config.display_raw);
+        let v = getValue(degrees);
+        return knob_config.display_raw ? knob_config.format_raw(v) : knob_config.format(v);
+    }
+
+    /**
+     * Return the value "rounded" according to knob_config.value_resolution
+     * @param v value
+     */
+    function getRoundedValue(v: number): number {
+        return knob_config.value_resolution === null ? v : Math.round(v / knob_config.value_resolution) * knob_config.value_resolution;
+    }
+
+    /**
+     * Get the knob's value determined by the knob's position (angle)
+     * @param degrees [deg] in knob's coordinates
+     * @returns {number}
+     */
+    function getValue(degrees: number): number {
+        // let p = degrees === undefined ? angle : degrees;
+        let v = ((degrees - knob_config.angle_min) / (knob_config.angle_max - knob_config.angle_min)) * (knob_config.value_max - knob_config.value_min) + knob_config.value_min;
+        return getRoundedValue(v - getCursorCorrection());
+    }
 
     function updateBounds() {
         if (svgElementRef) {
             // @ts-ignore
             targetRect = svgElementRef.current.getBoundingClientRect();
             if (TRACE) console.log("updateBounds", targetRect);
-            // @ts-ignore
-            // setWidth(bounds.width);
-            // @ts-ignore
-            // setTargetRect(bounds);
         }
     }
 
@@ -88,7 +118,7 @@ export const Knob: FC<KnobProps> = ({onKnobChange, config, skin}) => {
 
         let new_angle = Math.min(Math.max(degrees, knob_config.angle_min), knob_config.angle_max);
 
-        if (TRACE) console.log("updateAngle", degrees, new_angle, knob_config.angle_min, knob_config.angle_max);
+        // if (TRACE) console.log("updateAngle", degrees, new_angle, knob_config.angle_min, knob_config.angle_max);
 
         setAngle(new_angle);
 
@@ -97,7 +127,13 @@ export const Knob: FC<KnobProps> = ({onKnobChange, config, skin}) => {
         let notify = (new_angle !== angle); //TODO: notify flag
         if (notify) {
             // fire the event if the change of angle affect the value:
-            onKnobChange(new_angle);
+            // onKnobChange(new_angle);
+
+
+            console.log("updateAngle", getValue(new_angle));
+
+
+            onKnobChange(getValue(new_angle));
             //TODO:
             // if (getValue(prev) !== getValue()) {
             //     notifyChange();
@@ -105,14 +141,6 @@ export const Knob: FC<KnobProps> = ({onKnobChange, config, skin}) => {
         }
         // if (trace) console.log("knob value has changed");
         // let value = getValue();     // TODO: cache the value
-        // let event = new CustomEvent("change", {"detail": value});
-        // //svg_element.dispatchEvent(event);
-        // elem.dispatchEvent(event);
-        // if (conf.onchange) {
-        //     conf.onchange(value);
-        // }
-
-
         // if (Math.abs(a - angle) > 2) {  //TODO: define Epsilon
         //     setAngle(degrees);
             // if (TRACE) console.log("call Knob's callback");
@@ -159,10 +187,8 @@ export const Knob: FC<KnobProps> = ({onKnobChange, config, skin}) => {
 
         if (targetRect !== null) {
 
-            // let dxPixels = targetRect ? e.clientX - targetRect.left : 0;
             // @ts-ignore
             let dxPixels = e.clientX - targetRect.left;
-            // let dyPixels = targetRect ? e.clientY - targetRect.top : 0;
             // @ts-ignore
             let dyPixels = e.clientY - targetRect.top;
 
@@ -201,8 +227,6 @@ export const Knob: FC<KnobProps> = ({onKnobChange, config, skin}) => {
 
         e.preventDefault();
 
-        // setDragging(true);
-
         // If the knob is not the last element being rendered on the page, it's boundingRect may still be updated if other elements
         // are added in the page. It's therefore important to always get an updated value:
         updateBounds();
@@ -232,62 +256,13 @@ export const Knob: FC<KnobProps> = ({onKnobChange, config, skin}) => {
         mouseUpdate(e);
     };
 
-/*
-    const handleKeyDown = (event:any) => {
-        if (TRACE) console.log('A key was pressed', event.keyCode);
-    };
-
-    React.useEffect(() => {
-        if (TRACE) console.log("add keyDown");
-        window.addEventListener('keydown', handleKeyDown);
-        // window.addEventListener('mousemove', dummy);
-        // cleanup this component
-        return () => {
-            if (TRACE) console.log("remove keyDown");
-            window.removeEventListener('keydown', handleKeyDown);
-        };
-    }, []);
-*/
-
     return (
         <svg ref={svgElementRef} viewBox={`0 0 ${VIEWBOX_WIDTH} ${VIEWBOX_HEIGHT}`} className="react-svg-knob" onMouseDown={mouseDownHandler}>
             {knob_skin.bg && <Background config={knob_config} skin={knob_skin}/>}
             {knob_skin.track_bg && <TrackBackground config={knob_config} skin={knob_skin}/>}
             {knob_skin.track && <Track angle={angle} config={knob_config} skin={knob_skin}/>}
             {knob_skin.cursor && <Cursor angle={angle} config={knob_config} skin={knob_skin}/>}
-            {knob_skin.text && <Text angle={angle} config={knob_config} skin={knob_skin}/>}
+            {knob_skin.text && <Text text={getDisplayValue(angle)} config={knob_config} skin={knob_skin}/>}
         </svg>
     );
 };
-
-/*
-
-    boolean altKey
-    number button
-    number buttons
-    number clientX
-    number clientY
-    boolean ctrlKey
-    boolean getModifierState(key)
-    boolean metaKey
-    number pageX
-    number pageY
-    DOMEventTarget relatedTarget
-    number screenX
-    number screenY
-    boolean shiftKey
-
-
-    <svg class="knob" id="knob-with-bg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 100 100">
-        <circle cx="50" cy="50" r="32" fill="#E0E0E0" stroke="#BDBDBD" stroke-width="1" class="knob-bg"></circle>
-        <path d="M 29.999939540051646,84.64098124473975 A 40,40 0 1,1 70.00006045994832,84.64098124473976" stroke="#CFD8DC"
-              stroke-width="8" fill="transparent" stroke-linecap="butt" class="knob-track-bg"></path>
-        <path d="M 29.999939540051646,84.64098124473975 A 40,40 0 0,1 32.85463405920261,13.860874017816307" stroke="#42A5F5"
-              stroke-width="8" fill="transparent" stroke-linecap="butt" class="knob-track"></path>
-        <path d="M 42.284613710256096,33.73737984210319 L 37.9982879937317,24.702590865493846" stroke="#42A5F5"
-              stroke-width="4" fill="transparent" stroke-linecap="butt" class="knob-cursor"></path>
-        <text x="50" y="58" text-anchor="middle" cursor="default" font-family="sans-serif" font-size="25" font-weight="bold"
-              fill="#424242" class="knob-value">42
-        </text>
-    </svg>
-*/

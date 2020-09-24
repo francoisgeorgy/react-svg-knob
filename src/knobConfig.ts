@@ -56,8 +56,10 @@ export const DEFAULT_CONFIG: KnobConfigType = {
 
     // callback to get the text to display from the current value
     display_raw: false,                 // if true, format callback is ignored
+
     format_raw: (v: number) => Math.round(v),
-    format: (v: any) => v,                     // formatting of the displayed value
+    format: (v: number) => v.toFixed(0),                     // formatting of the displayed value
+
     // off_text: null,                     // text to display when raw_value = min
     // out_of_range_text: null,            // text to display when raw_value is out of range
 

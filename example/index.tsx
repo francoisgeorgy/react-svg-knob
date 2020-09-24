@@ -1,7 +1,7 @@
 import 'react-app-polyfill/ie11';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
-import {useState} from "react";
+import {Fragment, useState} from "react";
 import {Knob} from '../.';
 import "./main.css";
 
@@ -12,12 +12,18 @@ const App = () => {
         setN(n);
     }
 
+    function customDisplay(v: number): JSX.Element {
+        return <Fragment>yop<br />{v.toFixed(2)}</Fragment>;
+    }
+
     return (
         <div className="centered">
-        <div style={{"width": "80vh"}}>
-            <Knob onKnobChange={onKnobChange}/>
+            <div style={{"width": "80vh"}}>
+                <Knob onKnobChange={onKnobChange} config={{format: customDisplay}} />
+                <div>{n}</div>
+            </div>
         </div>
-        </div>
+
     );
 };
 
