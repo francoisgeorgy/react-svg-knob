@@ -13,32 +13,10 @@ const App = () => {
     }
 
     return (
-        <div>
-            react-svg-knob
-            <div className="f">
-                <div>
-                    dummy
-                </div>
-                <div className="g">
-                    <div></div>
-                    <div></div>
-                    <div></div>
-                    <div></div>
-                    <div style={{"width": "100px"}}>
-                        <Knob onKnobChange={onKnobChange}/>
-                    </div>
-                    <div></div>
-                    <div></div>
-                    <div></div>
-                    <div></div>
-                </div>
-                <div>
-                    dummy
-                </div>
-            </div>
-            <div>
-                {n}
-            </div>
+        <div className="centered">
+        <div style={{"width": "80vh"}}>
+            <Knob onKnobChange={onKnobChange}/>
+        </div>
         </div>
     );
 };

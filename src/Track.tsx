@@ -1,13 +1,14 @@
 // import React, { FC, HTMLAttributes, ReactChild } from 'react';
 import React, {FC, HTMLAttributes} from 'react';
-import {config} from "./config";
+import {KnobConfigType} from "./knobConfig";
 import {getArc} from "./svg";
+import {KnobSkinType} from "./skin";
 
 // Please do not use types off of a default export module or else Storybook Docs will suffer.
 // see: https://github.com/storybookjs/storybook/issues/9556
 
 
-function getTrackPath(angle: number) {
+function getTrackPath(angle: number, angle_min: number, angle_max: number, track_radius: number, cw: boolean) {
 
     // if (trace) console.log("getTrackPath()");
 
@@ -42,7 +43,7 @@ function getTrackPath(angle: number) {
     } else {
 */
         // p = getArc(config.angle_min, angle, config.track_radius);
-        p = getArc(config.angle_min, angle, config.track_radius);
+        p = getArc(angle_min, angle, track_radius, cw);
 /*
     }
 */
@@ -51,15 +52,17 @@ function getTrackPath(angle: number) {
 }
 
 
-export interface Props extends HTMLAttributes<HTMLDivElement> {
+export interface KnobTrackProps extends HTMLAttributes<HTMLDivElement> {
     angle: number;
+    config: KnobConfigType;
+    skin: KnobSkinType;
 }
 
-export const Track: FC<Props> = ({angle}) => {
+export const Track: FC<KnobTrackProps> = ({angle, config, skin}) => {
     // return <path d="M 29.999939540051646,84.64098124473975 A 40,40 0 0,1 21.377244431841547,22.058313156048467"
     //              stroke="#42A5F5" strokeWidth="8" fill="transparent" strokeLinecap="butt"
     //              className="knob-track"></path>;
-    return <path d={getTrackPath(angle)}
+    return <path d={getTrackPath(angle, config.angle_min, config.angle_max, skin.track_radius, config.rotation)}
                  stroke="#42A5F5" strokeWidth="8" fill="transparent" strokeLinecap="butt"
-                 className="knob-track"></path>;
+                 className="react-svg-knob-track"></path>;
 };

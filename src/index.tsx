@@ -6,19 +6,22 @@ import {Background} from "./Background";
 import {Cursor} from "./Cursor";
 import {Text} from "./Text";
 import {polarToKnobAngle} from "./maths";
-import {TRACE, VIEWBOX_HEIGHT, VIEWBOX_WIDTH} from "./config";
-import {CCW, config} from "./config";
+import {DEFAULT_CONFIG, KnobConfigType, TRACE, VIEWBOX_HEIGHT, VIEWBOX_WIDTH} from "./knobConfig";
+import {CCW} from "./knobConfig";
+import {DEFAULT_SKIN, KnobSkinType} from "./skin";
 
-export interface Props extends HTMLAttributes<HTMLDivElement> {
+export interface KnobProps extends HTMLAttributes<HTMLDivElement> {
     onKnobChange: (n: number) => void;
-    options?: string;
+    config?: KnobConfigType;
+    skin?: KnobSkinType;
 }
 
 // Please do not use types off of a default export module or else Storybook Docs will suffer.
 // see: https://github.com/storybookjs/storybook/issues/9556
-export const Knob: FC<Props> = ({onKnobChange, options}) => {
+export const Knob: FC<KnobProps> = ({onKnobChange, config, skin}) => {
 
-    // if (TRACE) console.log("Knob: options", options);
+    const knob_config: KnobConfigType = Object.assign({}, DEFAULT_CONFIG, config);
+    const knob_skin: KnobSkinType = Object.assign({}, DEFAULT_SKIN, skin);
 
     const svgElementRef = useRef(null);
     // const [width, setWidth] = useState(0);
@@ -31,7 +34,7 @@ export const Knob: FC<Props> = ({onKnobChange, options}) => {
 
 
     // The knob view is only dependent of the angle:
-    const [angle, setAngle] = useState(config.angle_min);  // current knob's value [value_min..value_max]
+    const [angle, setAngle] = useState(knob_config.angle_min);  // current knob's value [value_min..value_max]
 
     useEffect(() => {
         // if (TRACE) console.log("Knob.useEffect");
@@ -83,11 +86,11 @@ export const Knob: FC<Props> = ({onKnobChange, options}) => {
      */
     function updateAngle(degrees: number) {
 
-        let new_angle = Math.min(Math.max(degrees, config.angle_min), config.angle_max);
+        let new_angle = Math.min(Math.max(degrees, knob_config.angle_min), knob_config.angle_max);
 
-        if (TRACE) console.log("updateAngle", degrees, new_angle);
+        if (TRACE) console.log("updateAngle", degrees, new_angle, knob_config.angle_min, knob_config.angle_max);
 
-        setAngle(degrees);
+        setAngle(new_angle);
 
         // let prev = angle;
         // let notify = fire_event && (new_angle !== angle);
@@ -105,8 +108,8 @@ export const Knob: FC<Props> = ({onKnobChange, options}) => {
         // let event = new CustomEvent("change", {"detail": value});
         // //svg_element.dispatchEvent(event);
         // elem.dispatchEvent(event);
-        // if (config.onchange) {
-        //     config.onchange(value);
+        // if (conf.onchange) {
+        //     conf.onchange(value);
         // }
 
 
@@ -139,7 +142,7 @@ export const Knob: FC<Props> = ({onKnobChange, options}) => {
             let dx = (dxPixels - arcCenterXPixels) / (targetRect.width / 2);
             let dy = - (dyPixels - arcCenterYPixels) / (targetRect.width / 2);  // targetRect.width car on a 20px de plus en hauteur pour le label
 
-            if (config.rotation === CCW) dx = - dx;
+            if (conf.rotation === CCW) dx = - dx;
 
             // convert to polar coordinates
             let angle_rad = Math.atan2(dy, dx);
@@ -175,7 +178,7 @@ export const Knob: FC<Props> = ({onKnobChange, options}) => {
             // @ts-ignore
             let dy = -(dyPixels - arcCenterYPixels) / (targetRect.width / 2);  // targetRect.width car on a 20px de plus en hauteur pour le label
 
-            if (config.rotation === CCW) dx = - dx;
+            if (knob_config.rotation === CCW) dx = - dx;
 
             // convert to polar coordinates
             let angle_rad = Math.atan2(dy, dx);
@@ -247,13 +250,12 @@ export const Knob: FC<Props> = ({onKnobChange, options}) => {
 */
 
     return (
-        <svg ref={svgElementRef} viewBox={`0 0 ${VIEWBOX_WIDTH} ${VIEWBOX_HEIGHT}`} className="react-svg-knob"
-            onMouseDown={mouseDownHandler}>
-            <Background/>
-            <TrackBackground/>
-            <Track angle={angle}/>
-            <Cursor angle={angle}/>
-            <Text angle={angle}/>
+        <svg ref={svgElementRef} viewBox={`0 0 ${VIEWBOX_WIDTH} ${VIEWBOX_HEIGHT}`} className="react-svg-knob" onMouseDown={mouseDownHandler}>
+            {knob_skin.bg && <Background config={knob_config} skin={knob_skin}/>}
+            {knob_skin.track_bg && <TrackBackground config={knob_config} skin={knob_skin}/>}
+            {knob_skin.track && <Track angle={angle} config={knob_config} skin={knob_skin}/>}
+            {knob_skin.cursor && <Cursor angle={angle} config={knob_config} skin={knob_skin}/>}
+            {knob_skin.text && <Text angle={angle} config={knob_config} skin={knob_skin}/>}
         </svg>
     );
 };

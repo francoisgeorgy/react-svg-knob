@@ -1,13 +1,10 @@
-div {
-    border: 1px solid #ccc;
-    padding: 10px;
+body {
+    margin: 0;
+    padding: 0;
 }
-
-.f {
-    display: flex;
-}
-
-.g {
+.centered {
     display: grid;
-    grid-template-columns: auto auto auto;
+    height: 100vh;
+    justify-items: center;
+    align-items: center;
 }

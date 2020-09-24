@@ -1,4 +1,4 @@
-import {config, CW, HALF_HEIGHT, HALF_WIDTH} from "./config";
+import {HALF_HEIGHT, HALF_WIDTH} from "./knobConfig";
 
 
 /**
@@ -7,14 +7,14 @@ import {config, CW, HALF_HEIGHT, HALF_WIDTH} from "./config";
  * @param radius; defaults to config.radius
  * @returns {{x: number, y: number}}
  */
-export function getViewboxCoord(angle: number, radius: number) {
+export function getViewboxCoord(angle: number, radius: number, cw: boolean = true) {
     let a = angle * Math.PI / 180.0;
     // let r = radius === undefined ? config.track_radius : radius;
     let r = radius;
     let x = Math.cos(a) * r;
     let y = Math.sin(a) * r;
     return {
-        x: config.rotation === CW ? (HALF_WIDTH + x) : (HALF_WIDTH - x),
+        x: cw ? (HALF_WIDTH + x) : (HALF_WIDTH - x),
         y: HALF_HEIGHT - y
     }
 }
@@ -27,7 +27,7 @@ export function getViewboxCoord(angle: number, radius: number) {
  */
 import {knobToPolarAngle} from "./maths";
 
-export function getArc(from_angle: number, to_angle: number, radius: number): string {
+export function getArc(from_angle: number, to_angle: number, radius: number, cw: boolean = true): string {
 
     // if (trace) console.group(`getArc(${from_angle}, ${to_angle}, ${radius})`);
 
@@ -51,7 +51,7 @@ export function getArc(from_angle: number, to_angle: number, radius: number): st
     let delta_angle = (a0 - a1 + 360.0) % 360.0;
 
     let large_arc = delta_angle < 180.0 ? 0 : 1;
-    let arc_direction = config.rotation === CW ? 1 : 0;
+    let arc_direction = cw ? 1 : 0;
     // let arc_direction = 0;
 
     let p = `M ${x0},${y0} A ${radius},${radius} 0 ${large_arc},${arc_direction} ${x1},${y1}`;
