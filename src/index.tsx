@@ -6,19 +6,20 @@ import {Background} from "./Background";
 import {Cursor} from "./Cursor";
 import {Text} from "./Text";
 import {polarToKnobAngle} from "./maths";
-import {DEFAULT_CONFIG, KnobConfigType, TRACE, VIEWBOX_HEIGHT, VIEWBOX_WIDTH} from "./knobConfig";
+import {DEFAULT_CONFIG, KnobConfigType, PublicKnobConfigType, TRACE, VIEWBOX_HEIGHT, VIEWBOX_WIDTH} from "./knobConfig";
 import {CCW} from "./knobConfig";
 import {DEFAULT_SKIN, KnobSkinType, PublicKnobSkinType} from "./skin";
 
 export interface KnobProps extends HTMLAttributes<HTMLDivElement> {
+    initialValue: number;
     onKnobChange: (n: number) => void;
-    config?: KnobConfigType;
+    config?: PublicKnobConfigType;
     skin?: PublicKnobSkinType;
 }
 
 // Please do not use types off of a default export module or else Storybook Docs will suffer.
 // see: https://github.com/storybookjs/storybook/issues/9556
-export const Knob: FC<KnobProps> = ({onKnobChange, config, skin}) => {
+export const Knob: FC<KnobProps> = ({initialValue, onKnobChange, config, skin}) => {
 
     const knob_config: KnobConfigType = Object.assign({}, DEFAULT_CONFIG, config);
     const knob_skin: KnobSkinType = Object.assign({}, DEFAULT_SKIN, skin);
@@ -28,11 +29,25 @@ export const Knob: FC<KnobProps> = ({onKnobChange, config, skin}) => {
     let targetRect: any = null;
 
     // The knob view is only dependent of the angle:
-    const [angle, setAngle] = useState(knob_config.angle_min);  // current knob's value [value_min..value_max]
+    // const [angle, setAngle] = useState(knob_config.angle_min);  // current knob's value [value_min..value_max]
+    const [angle, setAngle] = useState(getAngleFromValue(initialValue));  // current knob's value [value_min..value_max]
 
     useEffect(() => {
         updateBounds();
-    }, []); //empty dependency array so it only runs once at render
+        setValue(initialValue);
+    }, [initialValue]); //empty dependency array so it only runs once at render
+
+    function getAngleFromValue(value: number): number {
+        let v;
+        if (value < knob_config.value_min) {
+            v = knob_config.value_min;
+        } else if (value > knob_config.value_max) {
+            v = knob_config.value_max;
+        } else {
+            v = value;
+        }
+        return ((v + getCursorCorrection() - knob_config.value_min) / (knob_config.value_max - knob_config.value_min)) * (knob_config.angle_max - knob_config.angle_min) + knob_config.angle_min;
+    }
 
     /**
      * Trick to adjust the cursor position when the range is odd.
@@ -52,21 +67,12 @@ export const Knob: FC<KnobProps> = ({onKnobChange, config, skin}) => {
      * Set knob's value
      * @param v
      */
-    function setValue(v: number): void {
-        //TODO
-        /*
-                if (v < knob_config.value_min) {
-                    value = knob_config.value_min;
-                } else if (v > knob_config.value_max) {
-                    value = knob_config.value_max;
-                } else {
-                    value = v;
-                }
-                setAngle(((v + getCursorCorrection() - knob_config.value_min) / (knob_config.value_max - knob_config.value_min)) * (knob_config.angle_max - knob_config.angle_min) + knob_config.angle_min);
-                if (trace) console.log(`setValue(${v}) angle=` + ((v - knob_config.value_min) / (knob_config.value_max - knob_config.value_min)) * (knob_config.angle_max - knob_config.angle_min) + knob_config.angle_min);
-                return true;
-        */
+    function setValue(value: number): void {
+        setAngle(getAngleFromValue(value));
+        // if (trace) console.log(`setValue(${v}) angle=` + ((v - knob_config.value_min) / (knob_config.value_max - knob_config.value_min)) * (knob_config.angle_max - knob_config.angle_min) + knob_config.angle_min);
+        // return true;
     }
+
     /**
      *
      * @param degrees [deg] in knob's coordinates

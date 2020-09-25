@@ -7,6 +7,8 @@ import "./main.css";
 
 const App = () => {
 
+    const [initialValue, setInitialValue] = useState(42);
+
     const [n, setN] = useState(0);
     const onKnobChange = n => {
         setN(n);
@@ -20,11 +22,21 @@ const App = () => {
         return <Fragment>yop<br />{v.toFixed(2)}</Fragment>;
     }
 
+    function setValue() {
+        const v = window.prompt("value");
+        const n = parseFloat(v || '');
+        if (isNaN(n)) return;
+        setInitialValue(n);
+    }
+
     return (
         <div className="centered">
             <div style={{"width": "80vh"}}>
-                <Knob onKnobChange={onKnobChange} config={{format: simpleDisplay}} skin={{font_size: 20, linecap: "round", cursor_radius: 21}} />
-                <div>{n}</div>
+                <Knob initialValue={initialValue} onKnobChange={onKnobChange} config={{format: simpleDisplay}} skin={{font_size: 20, linecap: "round", cursor_radius: 21}} />
+                <div>{initialValue}, {n}</div>
+                <div>
+                    <button type="button" onClick={setValue}>set value</button>
+                </div>
             </div>
         </div>
 

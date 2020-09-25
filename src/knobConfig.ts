@@ -10,6 +10,27 @@ export const NS = "http://www.w3.org/2000/svg";
 export const CW = true;    // clock-wise
 export const CCW = !CW;    // counter clock-wise
 
+export type PublicKnobConfigType = {
+    angle_max?: number;
+    angle_min?: number;
+    center_value?: null;
+    center_zero?: boolean;
+    default_value?: number;
+    display_raw?: boolean;
+    format?: (v: any) => any;
+    format_raw?: (v: number) => number;
+    initial_value?: number;
+    mouse_wheel_acceleration?: number;
+    rotation?: boolean;
+    snap_to_steps?: boolean;
+    value_max?: number;
+    value_min?: number;
+    value_position?: number
+    value_resolution?: number;
+    value_text?: boolean;
+    zero_at?: number;
+}
+
 export type KnobConfigType = {
     angle_max: number;
     angle_min: number;
