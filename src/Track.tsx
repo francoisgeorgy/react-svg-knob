@@ -59,12 +59,9 @@ export interface KnobTrackProps extends HTMLAttributes<HTMLDivElement> {
 }
 
 export const Track: FC<KnobTrackProps> = ({angle, config, skin}) => {
-    // return <path d="M 29.999939540051646,84.64098124473975 A 40,40 0 0,1 21.377244431841547,22.058313156048467"
-    //              stroke="#42A5F5" strokeWidth="8" fill="transparent" strokeLinecap="butt"
-    //              className="knob-track"></path>;
     return <path d={getTrackPath(angle, config.angle_min, config.angle_max, skin.track_radius, config.rotation)}
-                 stroke="#42A5F5"
+                 stroke={skin.track_color}
                  strokeWidth={skin.track_width}
                  fill="transparent" strokeLinecap="butt"
-                 className="react-svg-knob-track"></path>;
+                 className="react-svg-knob-track" />;
 };

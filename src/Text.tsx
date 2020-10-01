@@ -14,6 +14,7 @@ export const Text: FC<TextProps> = ({text, config, skin}) => {
                  textAnchor="middle"
                  cursor="default"
                  fontFamily={skin.font_family} fontSize={skin.font_size} fontWeight={skin.font_weight}
-                 fill="#424242" className="react-svg-knob-value">{text}</text>;
+                 fill={skin.text_fill}
+                 className="react-svg-knob-value">{text}</text>;
 
 };

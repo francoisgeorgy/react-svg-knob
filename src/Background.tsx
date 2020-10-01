@@ -8,5 +8,8 @@ export interface KnobBackgroundProps extends HTMLAttributes<HTMLDivElement> {
 }
 
 export const Background: FC<KnobBackgroundProps> = ({config, skin}: KnobBackgroundProps) => {
-    return <circle cx="50" cy="50" r="32" fill="#E0E0E0" stroke="#BDBDBD" strokeWidth="1" className="react-svg-knob-bg"></circle>;
+    return <circle cx="50" cy="50" r={skin.bg_radius}
+                   fill={skin.bg_color} stroke={skin.bg_border_color}
+                   strokeWidth={skin.bg_border_width}
+                   className="react-svg-knob-bg" />;
 };
