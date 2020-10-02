@@ -27,7 +27,9 @@ export type PublicKnobSkinType = {
     font_weight?: string;
     text_fill?: string;
     label?: boolean;
-    linecap?: "butt" | "round" | "square" | "inherit" | undefined;
+    cursor_linecap?: "butt" | "round" | "square" | "inherit" | undefined;
+    track_linecap?: "butt" | "round" | "square" | "inherit" | undefined;
+    track_bg_linecap?: "butt" | "round" | "square" | "inherit" | undefined;
     markers?: number;
     markers_length?: number;
     markers_radius?: number;
@@ -62,7 +64,9 @@ export type KnobSkinType = {
     font_weight: string;
     text_fill?: string;
     label: boolean;
-    linecap: "butt" | "round" | "square" | "inherit" | undefined;
+    cursor_linecap: "butt" | "round" | "square" | "inherit" | undefined;
+    track_linecap: "butt" | "round" | "square" | "inherit" | undefined;
+    track_bg_linecap: "butt" | "round" | "square" | "inherit" | undefined;
     markers: number;
     markers_length: number;
     markers_radius: number;
@@ -116,7 +120,9 @@ export const DEFAULT_SKIN: KnobSkinType = {
     cursor_color: "#42A5F5",
 
     // CSS class names
-    linecap: "butt",                   // https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/stroke-linecap
+    cursor_linecap: "round",
+    track_linecap: "round",
+    track_bg_linecap: "round",
 
     // text displayed in the middle of the knob:
     value_text: true,

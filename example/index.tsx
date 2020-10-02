@@ -32,7 +32,15 @@ const App = () => {
     return (
         <div className="centered">
             <div style={{"width": "80vh"}}>
-                <Knob initialValue={initialValue} onKnobChange={onKnobChange} config={{format: simpleDisplay}} skin={{font_size: 20, linecap: "round", cursor_radius: 21}} />
+                <Knob initialValue={initialValue} onKnobChange={onKnobChange}
+                      config={{format: simpleDisplay}}
+                      skin={{
+                          font_size: 20,
+                          cursor_linecap: "round",
+                          track_linecap: "round",
+                          track_bg_linecap: "round",
+                          cursor_radius: 21
+                      }} />
                 <div>{initialValue}, {n}</div>
                 <div>
                     <button type="button" onClick={setValue}>set value</button>

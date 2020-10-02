@@ -62,6 +62,6 @@ export const Track: FC<KnobTrackProps> = ({angle, config, skin}) => {
     return <path d={getTrackPath(angle, config.angle_min, config.angle_max, skin.track_radius, config.rotation)}
                  stroke={skin.track_color}
                  strokeWidth={skin.track_width}
-                 fill="transparent" strokeLinecap="butt"
+                 fill="transparent" strokeLinecap={skin.track_linecap}
                  className="react-svg-knob-track" />;
 };

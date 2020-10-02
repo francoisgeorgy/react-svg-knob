@@ -14,5 +14,5 @@ export const TrackBackground: FC<KnobTrackBackgroundProps> = ({config, skin}) =>
     return <path d={getArc(config.angle_min, config.angle_max, skin.track_bg_radius)}
                 stroke={skin.track_bg_color}
                 strokeWidth={skin.track_bg_width}
-                fill="transparent" strokeLinecap="butt" className="react-svg-knob-track-bg" />;
+                fill="transparent" strokeLinecap={skin.track_bg_linecap} className="react-svg-knob-track-bg" />;
 };
